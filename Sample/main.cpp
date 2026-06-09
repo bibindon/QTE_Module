@@ -7,9 +7,9 @@
 
 #pragma comment (lib, "winmm.lib")
 
-#pragma comment( lib, "SlideShow.lib")
+#pragma comment( lib, "QTE_Module.lib")
 
-#include "..\QTE_Module\SlideShow.h"
+#include "..\QTE_Module\QTE_Module.h"
 
 #include <d3d9.h>
 #include <d3dx9.h>

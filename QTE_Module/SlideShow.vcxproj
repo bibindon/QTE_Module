@@ -27,12 +27,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SlideShow.cpp" />
+    <ClCompile Include="QTE_Module.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CaesarCipher.h" />
     <ClInclude Include="HeaderOnlyCsv.hpp" />
-    <ClInclude Include="SlideShow.h" />
+    <ClInclude Include="QTE_Module.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -40,6 +40,7 @@
     <ProjectGuid>{d8a93a58-4392-4fc4-a4f7-634d4dac81b4}</ProjectGuid>
     <RootNamespace>novelsystem</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>QTE_Module</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
