@@ -30,8 +30,6 @@
     <ClCompile Include="QTE_Module.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CaesarCipher.h" />
-    <ClInclude Include="HeaderOnlyCsv.hpp" />
     <ClInclude Include="QTE_Module.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -182,6 +182,13 @@ bool QTE_Module::Update()
 {
     if (m_pageList.empty())
     {
+        if (!m_barAnimActive && m_barStopWaitStart > 0)
+        {
+            if (GetTickCount64() - m_barStopWaitStart >= BAR_STOP_WAIT_MS)
+            {
+                return true;
+            }
+        }
         return false;
     }
     InitConstValue();
@@ -283,6 +290,7 @@ void QTE_Module::Render()
             {
                 m_barResult = BarResult::Failure;
             }
+            m_barStopWaitStart = GetTickCount64();
         }
     }
 
@@ -455,6 +463,7 @@ void NS_QTE_Module::QTE_Module::StartBarAnimation()
     m_barAnimActive = true;
     m_barAnimWidth = 0;
     m_barResult = BarResult::None;
+    m_barStopWaitStart = 0;
 }
 
 void NS_QTE_Module::QTE_Module::StopBarAnimation()
@@ -486,6 +495,7 @@ void NS_QTE_Module::QTE_Module::StopBarAnimation()
     }
 
     m_barAnimActive = false;
+    m_barStopWaitStart = GetTickCount64();
 }
 
 QTE_Module::BarResult NS_QTE_Module::QTE_Module::GetBarResult() const

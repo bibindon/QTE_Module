@@ -124,10 +124,12 @@ private:
     bool m_barAnimActive = false;
     int m_barAnimWidth = 0;
     BarResult m_barResult = BarResult::None;
+    unsigned long long m_barStopWaitStart = 0;
 
     static const int BAR_WIDTH = 256;
     static const int BAR_ANIM_GROW_MS = 2000;
     static const int BAR_ANIM_SHRINK_MS = 2000;
+    static const int BAR_STOP_WAIT_MS = 2000;
     static const int FRAME_MS = 17;
     static const int SUCCESS_WINDOW_MS = 2 * FRAME_MS;
     static const int NORMAL_WINDOW_MS = 10 * FRAME_MS;

@@ -144,6 +144,7 @@ float f = 0.0f;
 bool bFinish = false;
 
 QTE_Module* story = nullptr;
+QTE_Module::BarResult g_lastResult = QTE_Module::BarResult::None;
 
 void TextDraw(LPD3DXFONT pFont, const wchar_t* text, int X, int Y)
 {
@@ -287,6 +288,17 @@ VOID Render()
     mat = mat * View * Proj;
     pEffect->SetMatrix("matWorldViewProj", &mat);
 
+    if (story != nullptr)
+    {
+        if (story->Update())
+        {
+            g_lastResult = story->GetBarResult();
+            story->Finalize();
+            delete story;
+            story = nullptr;
+        }
+    }
+
     g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
         D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
 
@@ -308,6 +320,21 @@ VOID Render()
                 TextDraw(g_pFont, _T("NORMAL"), 0, 30);
             }
             else if (result == QTE_Module::BarResult::Failure)
+            {
+                TextDraw(g_pFont, _T("FAILURE"), 0, 30);
+            }
+        }
+        else if (g_lastResult != QTE_Module::BarResult::None)
+        {
+            if (g_lastResult == QTE_Module::BarResult::Success)
+            {
+                TextDraw(g_pFont, _T("SUCCESS"), 0, 30);
+            }
+            else if (g_lastResult == QTE_Module::BarResult::Normal)
+            {
+                TextDraw(g_pFont, _T("NORMAL"), 0, 30);
+            }
+            else if (g_lastResult == QTE_Module::BarResult::Failure)
             {
                 TextDraw(g_pFont, _T("FAILURE"), 0, 30);
             }
@@ -358,6 +385,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 story->Finalize();
                 delete story;
             }
+            g_lastResult = QTE_Module::BarResult::None;
             story = new QTE_Module();
             InitStory();
             break;
