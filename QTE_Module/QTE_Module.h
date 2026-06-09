@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace NSSlideShow
+namespace NS_QTE_Module
 {
 class ISprite
 {
@@ -53,7 +53,7 @@ private:
     int m_textIndex = 0;
 };
 
-class SlideShow
+class QTE_Module
 {
 public:
 

@@ -21,7 +21,7 @@
 #include <crtdbg.h>
 #include <tchar.h>
 
-using namespace NSSlideShow;
+using namespace NS_QTE_Module;
 
 #define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p) = NULL; } }
 
@@ -213,7 +213,7 @@ D3DXMATERIAL* d3dxMaterials = NULL;
 float f = 0.0f;
 bool bFinish = false;
 
-SlideShow* story = nullptr;
+QTE_Module* story = nullptr;
 
 void TextDraw(LPD3DXFONT pFont, wchar_t* text, int X, int Y)
 {
@@ -509,18 +509,18 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 story->Finalize();
                 delete story;
             }
-            story = new SlideShow();
+            story = new QTE_Module();
             InitStory();
             break;
         }
         case 'F':
         {
-            SlideShow::SetFastMode(true);
+            QTE_Module::SetFastMode(true);
             break;
         }
         case 'G':
         {
-            SlideShow::SetFastMode(false);
+            QTE_Module::SetFastMode(false);
             break;
         }
         case VK_RETURN:

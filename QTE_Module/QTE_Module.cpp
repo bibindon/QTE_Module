@@ -3,9 +3,9 @@
 #include "HeaderOnlyCsv.hpp"
 #include "CaesarCipher.h"
 
-using namespace NSSlideShow;
+using namespace NS_QTE_Module;
 
-bool SlideShow::m_fastMode = false;
+bool QTE_Module::m_fastMode = false;
 
 static std::vector<std::wstring> split(const std::wstring& s, wchar_t delim)
 {
@@ -21,7 +21,7 @@ static std::vector<std::wstring> split(const std::wstring& s, wchar_t delim)
     return result;
 }
 
-void SlideShow::Init(
+void QTE_Module::Init(
     IFont* font,
     ISoundEffect* SE,
     ISprite* sprTextBack,
@@ -42,7 +42,7 @@ void SlideShow::Init(
     InitConstValue();
 }
 
-void NSSlideShow::SlideShow::Init(IFont* font,
+void NS_QTE_Module::QTE_Module::Init(IFont* font,
                                         ISoundEffect* SE,
                                         ISprite* sprTextBack,
                                         ISprite* sprFade,
@@ -136,7 +136,7 @@ void NSSlideShow::SlideShow::Init(IFont* font,
     InitConstValue();
 }
 
-void SlideShow::Next()
+void QTE_Module::Next()
 {
     if (m_waitNextCount < WAIT_NEXT_FRAME)
     {
@@ -158,7 +158,7 @@ void SlideShow::Next()
     m_waitNextCount = 0;
 }
 
-bool SlideShow::Update()
+bool QTE_Module::Update()
 {
     InitConstValue();
 
@@ -205,7 +205,7 @@ bool SlideShow::Update()
     return isFinish;
 }
 
-void SlideShow::Render()
+void QTE_Module::Render()
 {
     m_pageList.at(m_pageIndex).GetSprite()->DrawImage(0, 0);
     m_sprTextBack->DrawImage(0, 0);
@@ -236,7 +236,7 @@ void SlideShow::Render()
     }
 }
 
-void SlideShow::Finalize()
+void QTE_Module::Finalize()
 {
     delete m_sprTextBack;
     m_sprTextBack = nullptr;
@@ -255,12 +255,12 @@ void SlideShow::Finalize()
     m_sprImage = nullptr;
 }
 
-void NSSlideShow::SlideShow::SetFastMode(const bool arg)
+void NS_QTE_Module::QTE_Module::SetFastMode(const bool arg)
 {
     m_fastMode = arg;
 }
 
-void NSSlideShow::SlideShow::OnDeviceLost()
+void NS_QTE_Module::QTE_Module::OnDeviceLost()
 {
     m_sprFade->OnDeviceLost();
     m_sprImage->OnDeviceLost();
@@ -273,7 +273,7 @@ void NSSlideShow::SlideShow::OnDeviceLost()
     }
 }
 
-void NSSlideShow::SlideShow::OnDeviceReset()
+void NS_QTE_Module::QTE_Module::OnDeviceReset()
 {
     m_sprFade->OnDeviceReset();
     m_sprImage->OnDeviceReset();
@@ -286,7 +286,7 @@ void NSSlideShow::SlideShow::OnDeviceReset()
     }
 }
 
-void NSSlideShow::SlideShow::InitConstValue()
+void NS_QTE_Module::QTE_Module::InitConstValue()
 {
     int& fade_frame_max = const_cast<int&>(FADE_FRAME_MAX);
     int& wait_next_frame = const_cast<int&>(WAIT_NEXT_FRAME);
