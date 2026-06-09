@@ -84,6 +84,8 @@ public:
     void OnDeviceLost();
     void OnDeviceReset();
 
+    void SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight);
+
 private:
 
     static bool m_fastMode;
@@ -106,6 +108,11 @@ private:
 
     const int WAIT_NEXT_FRAME = 10;
     int m_waitNextCount = 0;
+
+    ISprite* m_sprWhiteBar = nullptr;
+    ISprite* m_sprBlackBar = nullptr;
+    int m_screenWidth = 0;
+    int m_screenHeight = 0;
 };
 }
 

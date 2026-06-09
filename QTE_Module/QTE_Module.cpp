@@ -226,6 +226,15 @@ void QTE_Module::Render()
         m_font->DrawText_(vss.at(textIndex).at(2), 100, 830);
     }
 
+    if (m_sprWhiteBar != nullptr)
+    {
+        m_sprWhiteBar->DrawImage((m_screenWidth - 256) / 2, m_screenHeight / 2 - 20);
+    }
+    if (m_sprBlackBar != nullptr)
+    {
+        m_sprBlackBar->DrawImage((m_screenWidth - 256) / 2, m_screenHeight / 2 + 12);
+    }
+
     if (m_isFadeIn)
     {
         m_sprFade->DrawImage(0, 0, 255 - m_FadeInCount*255/FADE_FRAME_MAX);
@@ -253,6 +262,10 @@ void QTE_Module::Finalize()
     }
     delete m_sprImage;
     m_sprImage = nullptr;
+    delete m_sprWhiteBar;
+    m_sprWhiteBar = nullptr;
+    delete m_sprBlackBar;
+    m_sprBlackBar = nullptr;
 }
 
 void NS_QTE_Module::QTE_Module::SetFastMode(const bool arg)
@@ -271,6 +284,15 @@ void NS_QTE_Module::QTE_Module::OnDeviceLost()
     {
         item.GetSprite()->OnDeviceLost();
     }
+
+    if (m_sprWhiteBar != nullptr)
+    {
+        m_sprWhiteBar->OnDeviceLost();
+    }
+    if (m_sprBlackBar != nullptr)
+    {
+        m_sprBlackBar->OnDeviceLost();
+    }
 }
 
 void NS_QTE_Module::QTE_Module::OnDeviceReset()
@@ -283,6 +305,15 @@ void NS_QTE_Module::QTE_Module::OnDeviceReset()
     for (auto& item : m_pageList)
     {
         item.GetSprite()->OnDeviceReset();
+    }
+
+    if (m_sprWhiteBar != nullptr)
+    {
+        m_sprWhiteBar->OnDeviceReset();
+    }
+    if (m_sprBlackBar != nullptr)
+    {
+        m_sprBlackBar->OnDeviceReset();
     }
 }
 
@@ -301,6 +332,14 @@ void NS_QTE_Module::QTE_Module::InitConstValue()
         fade_frame_max = 20;
         wait_next_frame = 10;
     }
+}
+
+void NS_QTE_Module::QTE_Module::SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight)
+{
+    m_sprWhiteBar = whiteBar;
+    m_sprBlackBar = blackBar;
+    m_screenWidth = screenWidth;
+    m_screenHeight = screenHeight;
 }
 
 ISprite* Page::GetSprite() const

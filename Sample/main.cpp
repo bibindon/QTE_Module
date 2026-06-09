@@ -410,6 +410,12 @@ void InitStory()
 
         story->Init(pFont, pSE, sprTextBack, sprFade, pageList, true);
     }
+
+    Sprite* sprWhiteBar = new Sprite(g_pd3dDevice);
+    sprWhiteBar->Load(_T("white_bar.bmp"));
+    Sprite* sprBlackBar = new Sprite(g_pd3dDevice);
+    sprBlackBar->Load(_T("black_bar.bmp"));
+    story->SetBars(sprWhiteBar, sprBlackBar, 1600, 900);
 }
 
 VOID Cleanup()
