@@ -9,6 +9,7 @@ class ISprite
 {
 public:
     virtual void DrawImage(const int x, const int y, const int transparency = 255) = 0;
+    virtual void DrawImageRect(const int x, const int y, const int srcWidth, const int srcHeight, const int transparency = 255) = 0;
     virtual void Load(const std::wstring& filepath) = 0;
     virtual ISprite* Create() = 0;
     virtual ~ISprite() {};
@@ -85,6 +86,7 @@ public:
     void OnDeviceReset();
 
     void SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight);
+    void StartBarAnimation();
 
 private:
 
@@ -113,6 +115,13 @@ private:
     ISprite* m_sprBlackBar = nullptr;
     int m_screenWidth = 0;
     int m_screenHeight = 0;
+
+    unsigned long long m_barAnimStartTime = 0;
+    bool m_barAnimActive = false;
+
+    static const int BAR_WIDTH = 256;
+    static const int BAR_ANIM_GROW_MS = 2000;
+    static const int BAR_ANIM_SHRINK_MS = 2000;
 };
 }
 

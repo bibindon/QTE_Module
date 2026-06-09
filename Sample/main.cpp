@@ -54,6 +54,21 @@ public:
 
     }
 
+    void DrawImageRect(const int x, const int y, const int srcWidth, const int srcHeight, const int transparency) override
+    {
+        D3DXVECTOR3 pos {(float)x, (float)y, 0.f};
+        m_D3DSprite->Begin(D3DXSPRITE_ALPHABLEND);
+        RECT rect = { 0, 0, srcWidth, srcHeight };
+        D3DXVECTOR3 center { 0, 0, 0 };
+        m_D3DSprite->Draw(
+            m_pD3DTexture,
+            &rect,
+            &center,
+            &pos,
+            D3DCOLOR_ARGB(transparency, 255, 255, 255));
+        m_D3DSprite->End();
+    }
+
     void Load(const std::wstring& filepath) override
     {
         LPD3DXSPRITE tempSprite { nullptr };

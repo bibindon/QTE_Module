@@ -1,5 +1,6 @@
 ﻿#include "QTE_Module.h"
 #include <sstream>
+#include <Windows.h>
 #include "HeaderOnlyCsv.hpp"
 #include "CaesarCipher.h"
 
@@ -256,13 +257,36 @@ void QTE_Module::Render()
         }
     }
 
-    if (m_sprWhiteBar != nullptr)
-    {
-        m_sprWhiteBar->DrawImage((m_screenWidth - 256) / 2, m_screenHeight / 2 - 20);
-    }
     if (m_sprBlackBar != nullptr)
     {
-        m_sprBlackBar->DrawImage((m_screenWidth - 256) / 2, m_screenHeight / 2 + 12);
+        m_sprBlackBar->DrawImage((m_screenWidth - BAR_WIDTH) / 2, (m_screenHeight - 32) / 2);
+    }
+    if (m_sprWhiteBar != nullptr && m_barAnimActive)
+    {
+        const int barX = (m_screenWidth - BAR_WIDTH) / 2;
+        const int barY = (m_screenHeight - 32) / 2;
+
+        unsigned long long elapsed = GetTickCount64() - m_barAnimStartTime;
+        int animWidth = 0;
+
+        if (elapsed < BAR_ANIM_GROW_MS)
+        {
+            animWidth = (int)((double)elapsed / BAR_ANIM_GROW_MS * BAR_WIDTH);
+        }
+        else if (elapsed < BAR_ANIM_GROW_MS + BAR_ANIM_SHRINK_MS)
+        {
+            unsigned long long shrinkElapsed = elapsed - BAR_ANIM_GROW_MS;
+            animWidth = BAR_WIDTH - (int)((double)shrinkElapsed / BAR_ANIM_SHRINK_MS * BAR_WIDTH);
+        }
+        else
+        {
+            m_barAnimActive = false;
+        }
+
+        if (animWidth > 0)
+        {
+            m_sprWhiteBar->DrawImageRect(barX, barY, animWidth, 32);
+        }
     }
 
     if (m_sprFade != nullptr)
@@ -418,6 +442,13 @@ void NS_QTE_Module::QTE_Module::SetBars(ISprite* whiteBar, ISprite* blackBar, in
     m_sprBlackBar = blackBar;
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
+    StartBarAnimation();
+}
+
+void NS_QTE_Module::QTE_Module::StartBarAnimation()
+{
+    m_barAnimStartTime = GetTickCount64();
+    m_barAnimActive = true;
 }
 
 ISprite* Page::GetSprite() const
