@@ -5,8 +5,6 @@
 #pragma comment( lib, "d3dx9.lib")
 #endif
 
-#pragma comment (lib, "winmm.lib")
-
 #pragma comment( lib, "QTE_Module.lib")
 
 #include "..\QTE_Module\QTE_Module.h"
@@ -141,7 +139,6 @@ DWORD dwNumMaterials = 0;
 LPD3DXEFFECT pEffect = NULL;
 D3DXMATERIAL* d3dxMaterials = NULL;
 float f = 0.0f;
-bool bFinish = false;
 
 QTE_Module* story = nullptr;
 QTE_Module::BarResult g_lastResult = QTE_Module::BarResult::None;
