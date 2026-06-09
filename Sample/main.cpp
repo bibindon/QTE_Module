@@ -5,12 +5,14 @@
 #pragma comment( lib, "d3dx9.lib")
 #endif
 
+#pragma comment(lib, "winmm.lib")
 #pragma comment( lib, "QTE_Module.lib")
 
 #include "..\QTE_Module\QTE_Module.h"
 
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <timeapi.h>
 #include <string>
 #include <vector>
 
@@ -169,7 +171,7 @@ HRESULT InitD3D(HWND hWnd)
     d3dpp.hDeviceWindow = hWnd;
     d3dpp.Flags = 0;
     d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
     if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &g_pd3dDevice)))
     {
@@ -264,6 +266,7 @@ VOID Cleanup()
     SAFE_RELEASE(pEffect);
     SAFE_RELEASE(g_pd3dDevice);
     SAFE_RELEASE(g_pD3D);
+    timeEndPeriod(1);
 }
 
 VOID Render()
@@ -430,11 +433,27 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ 
         ShowWindow(hWnd, SW_SHOWDEFAULT);
         UpdateWindow(hWnd);
 
+        timeBeginPeriod(1);
+
         MSG msg;
-        while (GetMessage(&msg, NULL, 0, 0))
+        bool running = true;
+        while (running)
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            {
+                if (msg.message == WM_QUIT)
+                {
+                    running = false;
+                    break;
+                }
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+            if (running)
+            {
+                Render();
+                Sleep(16);
+            }
         }
     }
 
