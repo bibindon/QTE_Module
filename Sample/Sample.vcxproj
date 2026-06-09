@@ -253,7 +253,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SlideShow\SlideShow.vcxproj">
+    <ProjectReference Include="..\QTE_Module\SlideShow.vcxproj">
       <Project>{d8a93a58-4392-4fc4-a4f7-634d4dac81b4}</Project>
     </ProjectReference>
   </ItemGroup>

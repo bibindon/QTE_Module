@@ -9,7 +9,7 @@
 
 #pragma comment( lib, "SlideShow.lib")
 
-#include "..\SlideShow\SlideShow.h"
+#include "..\QTE_Module\SlideShow.h"
 
 #include <d3d9.h>
 #include <d3dx9.h>
