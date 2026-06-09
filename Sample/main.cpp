@@ -141,6 +141,7 @@ DWORD dwNumMaterials = 0;
 LPD3DXEFFECT pEffect = NULL;
 D3DXMATERIAL* d3dxMaterials = NULL;
 float f = 0.0f;
+unsigned long long g_startTime = 0;
 
 QTE_Module* story = nullptr;
 QTE_Module::BarResult g_lastResult = QTE_Module::BarResult::None;
@@ -275,7 +276,8 @@ VOID Render()
     {
         return;
     }
-    f += 0.010f;
+    float elapsedSec = (GetTickCount64() - g_startTime) / 1000.0f;
+    f = elapsedSec * 0.5f;
 
     D3DXMATRIX mat;
     D3DXMATRIX View, Proj;
@@ -434,6 +436,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ 
         UpdateWindow(hWnd);
 
         timeBeginPeriod(1);
+        g_startTime = GetTickCount64();
 
         MSG msg;
         bool running = true;
