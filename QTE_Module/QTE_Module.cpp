@@ -261,32 +261,36 @@ void QTE_Module::Render()
     {
         m_sprBlackBar->DrawImage((m_screenWidth - BAR_WIDTH) / 2, (m_screenHeight - 32) / 2);
     }
-    if (m_sprWhiteBar != nullptr && m_barAnimActive)
-    {
-        const int barX = (m_screenWidth - BAR_WIDTH) / 2;
-        const int barY = (m_screenHeight - 32) / 2;
 
+    if (m_barAnimActive)
+    {
         unsigned long long elapsed = GetTickCount64() - m_barAnimStartTime;
-        int animWidth = 0;
 
         if (elapsed < BAR_ANIM_GROW_MS)
         {
-            animWidth = (int)((double)elapsed / BAR_ANIM_GROW_MS * BAR_WIDTH);
+            m_barAnimWidth = (int)((double)elapsed / BAR_ANIM_GROW_MS * BAR_WIDTH);
         }
         else if (elapsed < BAR_ANIM_GROW_MS + BAR_ANIM_SHRINK_MS)
         {
             unsigned long long shrinkElapsed = elapsed - BAR_ANIM_GROW_MS;
-            animWidth = BAR_WIDTH - (int)((double)shrinkElapsed / BAR_ANIM_SHRINK_MS * BAR_WIDTH);
+            m_barAnimWidth = BAR_WIDTH - (int)((double)shrinkElapsed / BAR_ANIM_SHRINK_MS * BAR_WIDTH);
         }
         else
         {
             m_barAnimActive = false;
+            m_barAnimWidth = 0;
+            if (m_barResult == BarResult::None)
+            {
+                m_barResult = BarResult::Failure;
+            }
         }
+    }
 
-        if (animWidth > 0)
-        {
-            m_sprWhiteBar->DrawImageRect(barX, barY, animWidth, 32);
-        }
+    if (m_sprWhiteBar != nullptr && m_barAnimWidth > 0)
+    {
+        const int barX = (m_screenWidth - BAR_WIDTH) / 2;
+        const int barY = (m_screenHeight - 32) / 2;
+        m_sprWhiteBar->DrawImageRect(barX, barY, m_barAnimWidth, 32);
     }
 
     if (m_sprFade != nullptr)
@@ -449,6 +453,44 @@ void NS_QTE_Module::QTE_Module::StartBarAnimation()
 {
     m_barAnimStartTime = GetTickCount64();
     m_barAnimActive = true;
+    m_barAnimWidth = 0;
+    m_barResult = BarResult::None;
+}
+
+void NS_QTE_Module::QTE_Module::StopBarAnimation()
+{
+    if (!m_barAnimActive)
+    {
+        return;
+    }
+
+    unsigned long long elapsed = GetTickCount64() - m_barAnimStartTime;
+
+    long long diff = (long long)elapsed - BAR_ANIM_GROW_MS;
+    if (diff < 0)
+    {
+        diff = -diff;
+    }
+
+    if (diff <= SUCCESS_WINDOW_MS)
+    {
+        m_barResult = BarResult::Success;
+    }
+    else if (diff <= NORMAL_WINDOW_MS)
+    {
+        m_barResult = BarResult::Normal;
+    }
+    else
+    {
+        m_barResult = BarResult::Failure;
+    }
+
+    m_barAnimActive = false;
+}
+
+QTE_Module::BarResult NS_QTE_Module::QTE_Module::GetBarResult() const
+{
+    return m_barResult;
 }
 
 ISprite* Page::GetSprite() const

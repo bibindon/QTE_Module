@@ -145,7 +145,7 @@ bool bFinish = false;
 
 QTE_Module* story = nullptr;
 
-void TextDraw(LPD3DXFONT pFont, wchar_t* text, int X, int Y)
+void TextDraw(LPD3DXFONT pFont, const wchar_t* text, int X, int Y)
 {
     RECT rect = { X,Y,0,0 };
     pFont->DrawText(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, D3DCOLOR_ARGB(255, 0, 0, 0));
@@ -293,8 +293,25 @@ VOID Render()
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
         wchar_t msg[128];
-        wcscpy_s(msg, 128, _T("M key: start"));
+        wcscpy_s(msg, 128, _T("M key: start  Enter/Space: stop"));
         TextDraw(g_pFont, msg, 0, 0);
+
+        if (story != nullptr)
+        {
+            auto result = story->GetBarResult();
+            if (result == QTE_Module::BarResult::Success)
+            {
+                TextDraw(g_pFont, _T("SUCCESS"), 0, 30);
+            }
+            else if (result == QTE_Module::BarResult::Normal)
+            {
+                TextDraw(g_pFont, _T("NORMAL"), 0, 30);
+            }
+            else if (result == QTE_Module::BarResult::Failure)
+            {
+                TextDraw(g_pFont, _T("FAILURE"), 0, 30);
+            }
+        }
 
         pEffect->SetTechnique("BasicTec");
         UINT numPass;
@@ -343,6 +360,15 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             story = new QTE_Module();
             InitStory();
+            break;
+        }
+        case VK_RETURN:
+        case VK_SPACE:
+        {
+            if (story != nullptr)
+            {
+                story->StopBarAnimation();
+            }
             break;
         }
         case VK_ESCAPE:

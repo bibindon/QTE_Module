@@ -58,6 +58,8 @@ class QTE_Module
 {
 public:
 
+    enum class BarResult { None, Failure, Normal, Success };
+
     void Init(IFont* font,
               ISoundEffect* SE,
               ISprite* sprTextBack,
@@ -87,6 +89,8 @@ public:
 
     void SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight);
     void StartBarAnimation();
+    void StopBarAnimation();
+    BarResult GetBarResult() const;
 
 private:
 
@@ -118,10 +122,15 @@ private:
 
     unsigned long long m_barAnimStartTime = 0;
     bool m_barAnimActive = false;
+    int m_barAnimWidth = 0;
+    BarResult m_barResult = BarResult::None;
 
     static const int BAR_WIDTH = 256;
     static const int BAR_ANIM_GROW_MS = 2000;
     static const int BAR_ANIM_SHRINK_MS = 2000;
+    static const int FRAME_MS = 17;
+    static const int SUCCESS_WINDOW_MS = 2 * FRAME_MS;
+    static const int NORMAL_WINDOW_MS = 10 * FRAME_MS;
 };
 }
 
