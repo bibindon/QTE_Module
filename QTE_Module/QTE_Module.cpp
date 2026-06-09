@@ -36,8 +36,14 @@ void QTE_Module::Init(
     m_pageList = pageList;
     m_isFadeIn = true;
 
-    m_font->Init(bEnglish);
-    m_SE->Init();
+    if (m_font != nullptr)
+    {
+        m_font->Init(bEnglish);
+    }
+    if (m_SE != nullptr)
+    {
+        m_SE->Init();
+    }
 
     InitConstValue();
 }
@@ -57,8 +63,14 @@ void NS_QTE_Module::QTE_Module::Init(IFont* font,
     m_sprFade = sprFade;
     m_sprImage = sprImage;
 
-    m_font->Init(bEnglish);
-    m_SE->Init();
+    if (m_font != nullptr)
+    {
+        m_font->Init(bEnglish);
+    }
+    if (m_SE != nullptr)
+    {
+        m_SE->Init();
+    }
 
     std::vector<std::vector<std::wstring> > vvs;
     if (encrypt == false)
@@ -138,6 +150,10 @@ void NS_QTE_Module::QTE_Module::Init(IFont* font,
 
 void QTE_Module::Next()
 {
+    if (m_pageList.empty())
+    {
+        return;
+    }
     if (m_waitNextCount < WAIT_NEXT_FRAME)
     {
         return;
@@ -154,12 +170,19 @@ void QTE_Module::Next()
         m_isFadeOut = true;
     }
     m_pageList.at(m_pageIndex).SetTextIndex(textIndex);
-    m_SE->PlayMove();
+    if (m_SE != nullptr)
+    {
+        m_SE->PlayMove();
+    }
     m_waitNextCount = 0;
 }
 
 bool QTE_Module::Update()
 {
+    if (m_pageList.empty())
+    {
+        return false;
+    }
     InitConstValue();
 
     bool isFinish = false;
@@ -207,23 +230,30 @@ bool QTE_Module::Update()
 
 void QTE_Module::Render()
 {
-    m_pageList.at(m_pageIndex).GetSprite()->DrawImage(0, 0);
-    m_sprTextBack->DrawImage(0, 0);
-    std::vector<std::vector<std::wstring>> vss = m_pageList.at(m_pageIndex).GetTextList();
-    int textIndex = m_pageList.at(m_pageIndex).GetTextIndex();
-    if (vss.at(textIndex).size() >= 1)
+    if (!m_pageList.empty())
     {
-        m_font->DrawText_(vss.at(textIndex).at(0), 100, 730);
+        m_pageList.at(m_pageIndex).GetSprite()->DrawImage(0, 0);
     }
-
-    if (vss.at(textIndex).size() >= 2)
+    if (m_sprTextBack != nullptr)
     {
-        m_font->DrawText_(vss.at(textIndex).at(1), 100, 780);
+        m_sprTextBack->DrawImage(0, 0);
     }
-
-    if (vss.at(textIndex).size() >= 3)
+    if (!m_pageList.empty() && m_font != nullptr)
     {
-        m_font->DrawText_(vss.at(textIndex).at(2), 100, 830);
+        std::vector<std::vector<std::wstring>> vss = m_pageList.at(m_pageIndex).GetTextList();
+        int textIndex = m_pageList.at(m_pageIndex).GetTextIndex();
+        if (vss.at(textIndex).size() >= 1)
+        {
+            m_font->DrawText_(vss.at(textIndex).at(0), 100, 730);
+        }
+        if (vss.at(textIndex).size() >= 2)
+        {
+            m_font->DrawText_(vss.at(textIndex).at(1), 100, 780);
+        }
+        if (vss.at(textIndex).size() >= 3)
+        {
+            m_font->DrawText_(vss.at(textIndex).at(2), 100, 830);
+        }
     }
 
     if (m_sprWhiteBar != nullptr)
@@ -235,37 +265,61 @@ void QTE_Module::Render()
         m_sprBlackBar->DrawImage((m_screenWidth - 256) / 2, m_screenHeight / 2 + 12);
     }
 
-    if (m_isFadeIn)
+    if (m_sprFade != nullptr)
     {
-        m_sprFade->DrawImage(0, 0, 255 - m_FadeInCount*255/FADE_FRAME_MAX);
-    }
-    if (m_isFadeOut)
-    {
-        m_sprFade->DrawImage(0, 0, m_FadeOutCount*255/FADE_FRAME_MAX);
+        if (m_isFadeIn)
+        {
+            m_sprFade->DrawImage(0, 0, 255 - m_FadeInCount*255/FADE_FRAME_MAX);
+        }
+        if (m_isFadeOut)
+        {
+            m_sprFade->DrawImage(0, 0, m_FadeOutCount*255/FADE_FRAME_MAX);
+        }
     }
 }
 
 void QTE_Module::Finalize()
 {
-    delete m_sprTextBack;
-    m_sprTextBack = nullptr;
-    delete m_sprFade;
-    m_sprFade = nullptr;
-    delete m_font;
-    m_font = nullptr;
-    delete m_SE;
-    m_SE = nullptr;
+    if (m_sprTextBack != nullptr)
+    {
+        delete m_sprTextBack;
+        m_sprTextBack = nullptr;
+    }
+    if (m_sprFade != nullptr)
+    {
+        delete m_sprFade;
+        m_sprFade = nullptr;
+    }
+    if (m_font != nullptr)
+    {
+        delete m_font;
+        m_font = nullptr;
+    }
+    if (m_SE != nullptr)
+    {
+        delete m_SE;
+        m_SE = nullptr;
+    }
     for (std::size_t i = 0; i < m_pageList.size(); ++i)
     {
         delete m_pageList.at(i).GetSprite();
         m_pageList.at(i).SetSprite(nullptr);
     }
-    delete m_sprImage;
-    m_sprImage = nullptr;
-    delete m_sprWhiteBar;
-    m_sprWhiteBar = nullptr;
-    delete m_sprBlackBar;
-    m_sprBlackBar = nullptr;
+    if (m_sprImage != nullptr)
+    {
+        delete m_sprImage;
+        m_sprImage = nullptr;
+    }
+    if (m_sprWhiteBar != nullptr)
+    {
+        delete m_sprWhiteBar;
+        m_sprWhiteBar = nullptr;
+    }
+    if (m_sprBlackBar != nullptr)
+    {
+        delete m_sprBlackBar;
+        m_sprBlackBar = nullptr;
+    }
 }
 
 void NS_QTE_Module::QTE_Module::SetFastMode(const bool arg)
@@ -275,10 +329,22 @@ void NS_QTE_Module::QTE_Module::SetFastMode(const bool arg)
 
 void NS_QTE_Module::QTE_Module::OnDeviceLost()
 {
-    m_sprFade->OnDeviceLost();
-    m_sprImage->OnDeviceLost();
-    m_sprTextBack->OnDeviceLost();
-    m_font->OnDeviceLost();
+    if (m_sprFade != nullptr)
+    {
+        m_sprFade->OnDeviceLost();
+    }
+    if (m_sprImage != nullptr)
+    {
+        m_sprImage->OnDeviceLost();
+    }
+    if (m_sprTextBack != nullptr)
+    {
+        m_sprTextBack->OnDeviceLost();
+    }
+    if (m_font != nullptr)
+    {
+        m_font->OnDeviceLost();
+    }
 
     for (auto& item : m_pageList)
     {
@@ -297,10 +363,22 @@ void NS_QTE_Module::QTE_Module::OnDeviceLost()
 
 void NS_QTE_Module::QTE_Module::OnDeviceReset()
 {
-    m_sprFade->OnDeviceReset();
-    m_sprImage->OnDeviceReset();
-    m_sprTextBack->OnDeviceReset();
-    m_font->OnDeviceReset();
+    if (m_sprFade != nullptr)
+    {
+        m_sprFade->OnDeviceReset();
+    }
+    if (m_sprImage != nullptr)
+    {
+        m_sprImage->OnDeviceReset();
+    }
+    if (m_sprTextBack != nullptr)
+    {
+        m_sprTextBack->OnDeviceReset();
+    }
+    if (m_font != nullptr)
+    {
+        m_font->OnDeviceReset();
+    }
 
     for (auto& item : m_pageList)
     {

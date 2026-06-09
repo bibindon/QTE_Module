@@ -116,91 +116,6 @@ private:
     UINT m_height { 0 };
 };
 
-class Font : public IFont
-{
-public:
-
-    Font(LPDIRECT3DDEVICE9 pD3DDevice)
-        : m_pD3DDevice(pD3DDevice)
-    {
-    }
-
-    void Init(const bool bEnglish)
-    {
-        if (!bEnglish)
-        {
-            HRESULT hr = D3DXCreateFont(m_pD3DDevice,
-                                        24,
-                                        0,
-                                        FW_NORMAL,
-                                        1,
-                                        false,
-                                        SHIFTJIS_CHARSET,
-                                        OUT_TT_ONLY_PRECIS,
-                                        ANTIALIASED_QUALITY,
-                                        FF_DONTCARE,
-                                        _T("ＭＳ 明朝"),
-                                        &m_pFont);
-        }
-        else
-        {
-            HRESULT hr = D3DXCreateFont(m_pD3DDevice,
-                                        24,
-                                        0,
-                                        FW_NORMAL,
-                                        1,
-                                        false,
-                                        DEFAULT_CHARSET,
-                                        OUT_TT_ONLY_PRECIS,
-                                        CLEARTYPE_QUALITY,
-                                        FF_DONTCARE,
-                                        _T("Courier New"),
-                                        &m_pFont);
-        }
-    }
-
-    virtual void DrawText_(const std::wstring& msg, const int x, const int y)
-    {
-        RECT rect = { x, y, 0, 0 };
-        m_pFont->DrawText(NULL, msg.c_str(), -1, &rect, DT_LEFT | DT_NOCLIP,
-            D3DCOLOR_ARGB(255, 255, 255, 255));
-    }
-
-    ~Font()
-    {
-        m_pFont->Release();
-        m_pFont = nullptr;
-    }
-
-    void OnDeviceLost()
-    {
-        m_pFont->OnLostDevice();
-    }
-
-    void OnDeviceReset()
-    {
-        m_pFont->OnResetDevice();
-    }
-
-private:
-
-    LPDIRECT3DDEVICE9 m_pD3DDevice = NULL;
-    LPD3DXFONT m_pFont = NULL;
-};
-
-
-class SoundEffect : public ISoundEffect
-{
-    virtual void PlayMove() override
-    {
-        PlaySound(_T("cursor_move.wav"), NULL, SND_FILENAME | SND_ASYNC);
-    }
-    virtual void Init() override
-    {
-
-    }
-};
-
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPD3DXFONT g_pFont = NULL;
@@ -318,99 +233,6 @@ HRESULT InitD3D(HWND hWnd)
 
 void InitStory()
 {
-    // newはライブラリの使用者がするが、deleteはライブラリ内で行われる。
-    // ちょっと良くないけど・・・まぁよし！
-    ISoundEffect* pSE = new SoundEffect();
-
-    Sprite* sprTextBack = new Sprite(g_pd3dDevice);
-    sprTextBack->Load(_T("textBack.png"));
-
-    Sprite* sprFade = new Sprite(g_pd3dDevice);
-    sprFade->Load(_T("black.png"));
-
-    IFont* pFont = new Font(g_pd3dDevice);
-
-    // csvファイルから読むようにしたほうがいいような
-    // 別に必要ないような、微妙なところ。
-    // 巨大なゲームを作るわけじゃないし。
-    // 追記：必要だった。
-
-    if (_T("csv mode"))
-    {
-        Sprite* sprite = new Sprite(g_pd3dDevice);
-        story->Init(pFont, pSE, sprTextBack, sprFade, _T("..\\Sample\\sample.csv"), sprite, false, true);
-    }
-    else
-    {
-        std::vector<Page> pageList;
-        {
-            Page page;
-            Sprite* sprite = new Sprite(g_pd3dDevice);
-            sprite->Load(_T("opening01.png"));
-            page.SetSprite(sprite);
-            std::vector<std::vector<std::wstring> > vss;
-            std::vector<std::wstring> vs;
-            vs.push_back(_T("サンプルテキスト１"));
-            vs.push_back(_T("サンプルテキスト２"));
-            vs.push_back(_T("サンプルテキスト３"));
-            vss.push_back(vs);
-            vs.clear();
-            vs.push_back(_T("サンプルテキスト４サンプルテキスト４サンプルテキスト４"));
-            vs.push_back(_T("サンプルテキスト５サンプルテキスト５サンプルテキスト５"));
-            vs.push_back(_T("サンプルテキスト６サンプルテキスト６サンプルテキスト６"));
-            vss.push_back(vs);
-            vs.clear();
-            vs.push_back(_T("サンプルテキスト７サンプルテキスト７サンプルテキスト７サンプルテキスト７サンプルテキスト７"));
-            vs.push_back(_T("サンプルテキスト８サンプルテキスト８サンプルテキスト８サンプルテキスト８サンプルテキスト８"));
-            vs.push_back(_T("サンプルテキスト９サンプルテキスト９サンプルテキスト９サンプルテキスト９サンプルテキスト９"));
-            vss.push_back(vs);
-            page.SetTextList(vss);
-            pageList.push_back(page);
-        }
-        {
-            Page page;
-            Sprite* sprite = new Sprite(g_pd3dDevice);
-            sprite->Load(_T("opening02.png"));
-            page.SetSprite(sprite);
-            std::vector<std::vector<std::wstring> > vss;
-            std::vector<std::wstring> vs;
-            vs.push_back(_T("サンプルテキストＡ"));
-            vs.push_back(_T("サンプルテキストＢ"));
-            vs.push_back(_T("サンプルテキストＣ"));
-            vss.push_back(vs);
-            vs.clear();
-            vs.push_back(_T("サンプルテキストＤサンプルテキストＤサンプルテキストＤ"));
-            vs.push_back(_T("サンプルテキストＥサンプルテキストＥ"));
-            vs.push_back(_T("サンプルテキストＦ"));
-            vss.push_back(vs);
-            page.SetTextList(vss);
-            pageList.push_back(page);
-        }
-        {
-            Page page;
-            Sprite* sprite = new Sprite(g_pd3dDevice);
-            sprite->Load(_T("opening03.png"));
-            page.SetSprite(sprite);
-            std::vector<std::vector<std::wstring> > vss;
-            std::vector<std::wstring> vs;
-            vs.push_back(_T("１１１１１１１１１１１"));
-            vs.push_back(_T("２２２２２２２２２２２２２"));
-            vs.push_back(_T("３３３３３３３３３３３３３３３３３"));
-            vss.push_back(vs);
-            vs.clear();
-            vs.push_back(_T("４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４４"));
-            vs.push_back(_T(""));
-            vss.push_back(vs);
-            vs.clear();
-            vs.push_back(_T("５５５５５５５５５５５５５５５５５"));
-            vss.push_back(vs);
-            page.SetTextList(vss);
-            pageList.push_back(page);
-        }
-
-        story->Init(pFont, pSE, sprTextBack, sprFade, pageList, true);
-    }
-
     Sprite* sprWhiteBar = new Sprite(g_pd3dDevice);
     sprWhiteBar->Load(_T("white_bar.bmp"));
     Sprite* sprBlackBar = new Sprite(g_pd3dDevice);
@@ -450,24 +272,13 @@ VOID Render()
     mat = mat * View * Proj;
     pEffect->SetMatrix("matWorldViewProj", &mat);
 
-    if (story != nullptr)
-    {
-        bFinish = story->Update();
-        if (bFinish)
-        {
-            story->Finalize();
-            delete story;
-            story = nullptr;
-        }
-    }
-
     g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
         D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
 
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
         wchar_t msg[128];
-        wcscpy_s(msg, 128, _T("Ｍキーで紙芝居開始"));
+        wcscpy_s(msg, 128, _T("M key: start"));
         TextDraw(g_pFont, msg, 0, 0);
 
         pEffect->SetTechnique("BasicTec");
@@ -519,37 +330,11 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             InitStory();
             break;
         }
-        case 'F':
-        {
-            QTE_Module::SetFastMode(true);
-            break;
-        }
-        case 'G':
-        {
-            QTE_Module::SetFastMode(false);
-            break;
-        }
-        case VK_RETURN:
-        {
-            if (story != nullptr)
-            {
-                story->Next();
-            }
-            break;
-        }
         case VK_ESCAPE:
             PostQuitMessage(0);
             break;
         }
         break;
-    case WM_LBUTTONDOWN:
-    {
-        if (story != nullptr)
-        {
-            story->Next();
-        }
-        break;
-    }
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);
