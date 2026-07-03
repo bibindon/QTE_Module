@@ -56,7 +56,7 @@ private:
     static const int BUTTON_SIZE = 82;
     static const int CIRCLE_MATCH_MS = 2000;
     static const int CIRCLE_OVERSHOOT_MS = 2000;
-    static const int CIRCLE_STOP_WAIT_MS = 2000;
+    static const int CIRCLE_STOP_WAIT_MS = 500;
     static const int FRAME_MS = 17;
     static const int SUCCESS_WINDOW_MS = 2 * FRAME_MS;
     static const int NORMAL_WINDOW_MS = 10 * FRAME_MS;
