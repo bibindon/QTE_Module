@@ -69,6 +69,36 @@ public:
         m_D3DSprite->End();
     }
 
+    void DrawImageScaled(const int x, const int y, const int width, const int height, const int transparency) override
+    {
+        D3DXMATRIX oldTransform;
+        D3DXMATRIX transform;
+        D3DXVECTOR3 pos { (float)x, (float)y, 0.f };
+        RECT rect = {
+            0,
+            0,
+            static_cast<LONG>(m_width),
+            static_cast<LONG>(m_height) };
+        D3DXVECTOR3 center { 0, 0, 0 };
+        float scaleX = (float)width / (float)m_width;
+        float scaleY = (float)height / (float)m_height;
+
+        D3DXMatrixScaling(&transform, scaleX, scaleY, 1.0f);
+        m_D3DSprite->Begin(D3DXSPRITE_ALPHABLEND);
+        m_D3DSprite->GetTransform(&oldTransform);
+        m_D3DSprite->SetTransform(&transform);
+        pos.x = pos.x / scaleX;
+        pos.y = pos.y / scaleY;
+        m_D3DSprite->Draw(
+            m_pD3DTexture,
+            &rect,
+            &center,
+            &pos,
+            D3DCOLOR_ARGB(transparency, 255, 255, 255));
+        m_D3DSprite->SetTransform(&oldTransform);
+        m_D3DSprite->End();
+    }
+
     void Load(const std::wstring& filepath) override
     {
         LPD3DXSPRITE tempSprite { nullptr };
@@ -249,11 +279,13 @@ HRESULT InitD3D(HWND hWnd)
 
 void InitStory()
 {
-    Sprite* sprWhiteBar = new Sprite(g_pd3dDevice);
-    sprWhiteBar->Load(_T("white_bar.bmp"));
-    Sprite* sprBlackBar = new Sprite(g_pd3dDevice);
-    sprBlackBar->Load(_T("black_bar.bmp"));
-    story->SetBars(sprWhiteBar, sprBlackBar, 1600, 900);
+    Sprite* sprGrowingCircle = new Sprite(g_pd3dDevice);
+    sprGrowingCircle->Load(_T("qte_growing_circle.png"));
+    Sprite* sprTargetCircle = new Sprite(g_pd3dDevice);
+    sprTargetCircle->Load(_T("qte_target_circle.png"));
+    Sprite* sprButton = new Sprite(g_pd3dDevice);
+    sprButton->Load(_T("qte_button.png"));
+    story->SetCircleSprites(sprGrowingCircle, sprTargetCircle, sprButton, 1600, 900);
 }
 
 VOID Cleanup()
@@ -307,7 +339,7 @@ VOID Render()
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
         wchar_t msg[128];
-        wcscpy_s(msg, 128, _T("M key: start  Enter/Space: stop"));
+        wcscpy_s(msg, 128, _T("M key: start  Enter/Space/A: stop"));
         TextDraw(g_pFont, msg, 0, 0);
 
         if (story != nullptr)

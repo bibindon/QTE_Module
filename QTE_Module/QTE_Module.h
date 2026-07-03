@@ -8,6 +8,7 @@ class ISprite
 public:
     virtual void DrawImage(const int x, const int y, const int transparency = 255) = 0;
     virtual void DrawImageRect(const int x, const int y, const int srcWidth, const int srcHeight, const int transparency = 255) = 0;
+    virtual void DrawImageScaled(const int x, const int y, const int width, const int height, const int transparency = 255) = 0;
     virtual void Load(const std::wstring& filepath) = 0;
     virtual ISprite* Create() = 0;
     virtual ~ISprite() {};
@@ -26,27 +27,34 @@ public:
     void Finalize();
 
     void SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight);
+    void SetCircleSprites(ISprite* growingCircle, ISprite* targetCircle, ISprite* button, int screenWidth, int screenHeight);
     void StartBarAnimation();
+    void StartCircleAnimation();
     void StopBarAnimation();
+    void StopCircleAnimation();
     BarResult GetBarResult() const;
 
 private:
 
-    ISprite* m_sprWhiteBar = nullptr;
-    ISprite* m_sprBlackBar = nullptr;
+    ISprite* m_sprGrowingCircle = nullptr;
+    ISprite* m_sprTargetCircle = nullptr;
+    ISprite* m_sprButton = nullptr;
     int m_screenWidth = 0;
     int m_screenHeight = 0;
 
-    unsigned long long m_barAnimStartTime = 0;
-    bool m_barAnimActive = false;
-    int m_barAnimWidth = 0;
-    BarResult m_barResult = BarResult::None;
-    unsigned long long m_barStopWaitStart = 0;
+    unsigned long long m_circleAnimStartTime = 0;
+    bool m_circleAnimActive = false;
+    int m_circleAnimSize = 0;
+    BarResult m_circleResult = BarResult::None;
+    unsigned long long m_circleStopWaitStart = 0;
 
-    static const int BAR_WIDTH = 256;
-    static const int BAR_ANIM_GROW_MS = 2000;
-    static const int BAR_ANIM_SHRINK_MS = 2000;
-    static const int BAR_STOP_WAIT_MS = 2000;
+    static const int TARGET_CIRCLE_SIZE = 176;
+    static const int START_CIRCLE_SIZE = 48;
+    static const int MAX_CIRCLE_SIZE = 304;
+    static const int BUTTON_SIZE = 82;
+    static const int CIRCLE_MATCH_MS = 2000;
+    static const int CIRCLE_OVERSHOOT_MS = 2000;
+    static const int CIRCLE_STOP_WAIT_MS = 2000;
     static const int FRAME_MS = 17;
     static const int SUCCESS_WINDOW_MS = 2 * FRAME_MS;
     static const int NORMAL_WINDOW_MS = 10 * FRAME_MS;

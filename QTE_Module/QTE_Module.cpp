@@ -5,9 +5,9 @@ using namespace NS_QTE_Module;
 
 bool QTE_Module::Update()
 {
-    if (!m_barAnimActive && m_barStopWaitStart > 0)
+    if (!m_circleAnimActive && m_circleStopWaitStart > 0)
     {
-        if (GetTickCount64() - m_barStopWaitStart >= BAR_STOP_WAIT_MS)
+        if (GetTickCount64() - m_circleStopWaitStart >= CIRCLE_STOP_WAIT_MS)
         {
             return true;
         }
@@ -17,86 +17,116 @@ bool QTE_Module::Update()
 
 void QTE_Module::Render()
 {
-    if (m_sprBlackBar != nullptr)
+    const int centerX = m_screenWidth / 2;
+    const int centerY = m_screenHeight / 2;
+
+    if (m_sprTargetCircle != nullptr)
     {
-        m_sprBlackBar->DrawImage((m_screenWidth - BAR_WIDTH) / 2, (m_screenHeight - 32) / 2);
+        const int targetX = centerX - TARGET_CIRCLE_SIZE / 2;
+        const int targetY = centerY - TARGET_CIRCLE_SIZE / 2;
+        m_sprTargetCircle->DrawImageScaled(targetX, targetY, TARGET_CIRCLE_SIZE, TARGET_CIRCLE_SIZE);
     }
 
-    if (m_barAnimActive)
+    if (m_circleAnimActive)
     {
-        unsigned long long elapsed = GetTickCount64() - m_barAnimStartTime;
+        unsigned long long elapsed = GetTickCount64() - m_circleAnimStartTime;
+        const int totalAnimMs = CIRCLE_MATCH_MS + CIRCLE_OVERSHOOT_MS;
 
-        if (elapsed < BAR_ANIM_GROW_MS)
+        if (elapsed < (unsigned long long)totalAnimMs)
         {
-            m_barAnimWidth = (int)((double)elapsed / BAR_ANIM_GROW_MS * BAR_WIDTH);
-        }
-        else if (elapsed < BAR_ANIM_GROW_MS + BAR_ANIM_SHRINK_MS)
-        {
-            unsigned long long shrinkElapsed = elapsed - BAR_ANIM_GROW_MS;
-            m_barAnimWidth = BAR_WIDTH - (int)((double)shrinkElapsed / BAR_ANIM_SHRINK_MS * BAR_WIDTH);
+            const int circleRange = MAX_CIRCLE_SIZE - START_CIRCLE_SIZE;
+            m_circleAnimSize = START_CIRCLE_SIZE + (int)((double)elapsed / totalAnimMs * circleRange);
         }
         else
         {
-            m_barAnimActive = false;
-            m_barAnimWidth = 0;
-            if (m_barResult == BarResult::None)
+            m_circleAnimActive = false;
+            m_circleAnimSize = MAX_CIRCLE_SIZE;
+            if (m_circleResult == BarResult::None)
             {
-                m_barResult = BarResult::Failure;
+                m_circleResult = BarResult::Failure;
             }
-            m_barStopWaitStart = GetTickCount64();
+            m_circleStopWaitStart = GetTickCount64();
         }
     }
 
-    if (m_sprWhiteBar != nullptr && m_barAnimWidth > 0)
+    if (m_sprGrowingCircle != nullptr && m_circleAnimSize > 0)
     {
-        const int barX = (m_screenWidth - BAR_WIDTH) / 2;
-        const int barY = (m_screenHeight - 32) / 2;
-        m_sprWhiteBar->DrawImageRect(barX, barY, m_barAnimWidth, 32);
+        const int circleX = centerX - m_circleAnimSize / 2;
+        const int circleY = centerY - m_circleAnimSize / 2;
+        m_sprGrowingCircle->DrawImageScaled(circleX, circleY, m_circleAnimSize, m_circleAnimSize, 210);
+    }
+
+    if (m_sprButton != nullptr)
+    {
+        const int buttonX = centerX - BUTTON_SIZE / 2;
+        const int buttonY = centerY - BUTTON_SIZE / 2;
+        m_sprButton->DrawImageScaled(buttonX, buttonY, BUTTON_SIZE, BUTTON_SIZE);
     }
 }
 
 void QTE_Module::Finalize()
 {
-    if (m_sprWhiteBar != nullptr)
+    if (m_sprGrowingCircle != nullptr)
     {
-        delete m_sprWhiteBar;
-        m_sprWhiteBar = nullptr;
+        delete m_sprGrowingCircle;
+        m_sprGrowingCircle = nullptr;
     }
-    if (m_sprBlackBar != nullptr)
+    if (m_sprTargetCircle != nullptr)
     {
-        delete m_sprBlackBar;
-        m_sprBlackBar = nullptr;
+        delete m_sprTargetCircle;
+        m_sprTargetCircle = nullptr;
+    }
+    if (m_sprButton != nullptr)
+    {
+        delete m_sprButton;
+        m_sprButton = nullptr;
     }
 }
 
 void NS_QTE_Module::QTE_Module::SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight)
 {
-    m_sprWhiteBar = whiteBar;
-    m_sprBlackBar = blackBar;
+    SetCircleSprites(whiteBar, blackBar, nullptr, screenWidth, screenHeight);
+}
+
+void NS_QTE_Module::QTE_Module::SetCircleSprites(ISprite* growingCircle, ISprite* targetCircle, ISprite* button, int screenWidth, int screenHeight)
+{
+    m_sprGrowingCircle = growingCircle;
+    m_sprTargetCircle = targetCircle;
+    m_sprButton = button;
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
-    StartBarAnimation();
+    StartCircleAnimation();
 }
 
 void NS_QTE_Module::QTE_Module::StartBarAnimation()
 {
-    m_barAnimStartTime = GetTickCount64();
-    m_barAnimActive = true;
-    m_barAnimWidth = 0;
-    m_barResult = BarResult::None;
-    m_barStopWaitStart = 0;
+    StartCircleAnimation();
+}
+
+void NS_QTE_Module::QTE_Module::StartCircleAnimation()
+{
+    m_circleAnimStartTime = GetTickCount64();
+    m_circleAnimActive = true;
+    m_circleAnimSize = START_CIRCLE_SIZE;
+    m_circleResult = BarResult::None;
+    m_circleStopWaitStart = 0;
 }
 
 void NS_QTE_Module::QTE_Module::StopBarAnimation()
 {
-    if (!m_barAnimActive)
+    StopCircleAnimation();
+}
+
+void NS_QTE_Module::QTE_Module::StopCircleAnimation()
+{
+    if (!m_circleAnimActive)
     {
         return;
     }
 
-    unsigned long long elapsed = GetTickCount64() - m_barAnimStartTime;
+    unsigned long long elapsed = GetTickCount64() - m_circleAnimStartTime;
 
-    long long diff = (long long)elapsed - BAR_ANIM_GROW_MS;
+    long long diff = (long long)elapsed - CIRCLE_MATCH_MS;
     if (diff < 0)
     {
         diff = -diff;
@@ -104,22 +134,22 @@ void NS_QTE_Module::QTE_Module::StopBarAnimation()
 
     if (diff <= SUCCESS_WINDOW_MS)
     {
-        m_barResult = BarResult::Success;
+        m_circleResult = BarResult::Success;
     }
     else if (diff <= NORMAL_WINDOW_MS)
     {
-        m_barResult = BarResult::Normal;
+        m_circleResult = BarResult::Normal;
     }
     else
     {
-        m_barResult = BarResult::Failure;
+        m_circleResult = BarResult::Failure;
     }
 
-    m_barAnimActive = false;
-    m_barStopWaitStart = GetTickCount64();
+    m_circleAnimActive = false;
+    m_circleStopWaitStart = GetTickCount64();
 }
 
 QTE_Module::BarResult NS_QTE_Module::QTE_Module::GetBarResult() const
 {
-    return m_barResult;
+    return m_circleResult;
 }
