@@ -33,6 +33,7 @@ public:
     void StopBarAnimation();
     void StopCircleAnimation();
     BarResult GetBarResult() const;
+    float GetTimingCloseness() const;
 
 private:
 
@@ -47,6 +48,7 @@ private:
     int m_circleAnimSize = 0;
     BarResult m_circleResult = BarResult::None;
     unsigned long long m_circleStopWaitStart = 0;
+    float m_circleStopCloseness = 0.0f;
 
     static const int TARGET_CIRCLE_SIZE = 176;
     static const int START_CIRCLE_SIZE = 48;
