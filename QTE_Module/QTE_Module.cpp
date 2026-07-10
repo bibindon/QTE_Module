@@ -46,6 +46,7 @@ void QTE_Module::Render()
             {
                 m_circleResult = BarResult::Failure;
             }
+            m_resultEffectStartTime = currentTime;
             m_circleStopWaitStart = currentTime;
         }
     }
@@ -57,13 +58,20 @@ void QTE_Module::Render()
         m_sprGrowingCircle->DrawImageScaled(circleX, circleY, m_circleAnimSize, m_circleAnimSize, 210);
     }
 
-    unsigned long long successElapsed = 0;
-    bool successEffectActive = false;
-    if (m_circleResult == BarResult::Success && m_successEffectStartTime > 0)
+    unsigned long long resultEffectElapsed = 0;
+    bool resultEffectActive = false;
+    if (m_circleResult != BarResult::None && m_resultEffectStartTime > 0)
     {
-        successElapsed = currentTime - m_successEffectStartTime;
+        resultEffectElapsed = currentTime - m_resultEffectStartTime;
+        resultEffectActive = true;
+    }
+
+    bool successEffectActive = false;
+    if (resultEffectActive && m_circleResult == BarResult::Success)
+    {
         successEffectActive = true;
     }
+    const unsigned long long successElapsed = resultEffectElapsed;
 
     if (successEffectActive && successElapsed < SUCCESS_BURST_MS && m_sprSuccessBurst != nullptr)
     {
@@ -90,6 +98,36 @@ void QTE_Module::Render()
             const int waveX = centerX - waveSize / 2;
             const int waveY = centerY - waveSize / 2;
             m_sprSuccessWave->DrawImageScaled(waveX, waveY, waveSize, waveSize, waveTransparency);
+        }
+    }
+
+    if (resultEffectActive && m_circleResult == BarResult::Normal && m_sprNormalWave != nullptr)
+    {
+        if (resultEffectElapsed < NORMAL_EFFECT_MS)
+        {
+            const int normalStartSize = 160;
+            const int normalEndSize = 300;
+            const int normalRange = normalEndSize - normalStartSize;
+            const int normalSize = normalStartSize + (int)(resultEffectElapsed * normalRange / NORMAL_EFFECT_MS);
+            const int normalTransparency = 210 - (int)(resultEffectElapsed * 210 / NORMAL_EFFECT_MS);
+            const int normalX = centerX - normalSize / 2;
+            const int normalY = centerY - normalSize / 2;
+            m_sprNormalWave->DrawImageScaled(normalX, normalY, normalSize, normalSize, normalTransparency);
+        }
+    }
+
+    if (resultEffectActive && m_circleResult == BarResult::Failure && m_sprFailureImpact != nullptr)
+    {
+        if (resultEffectElapsed < FAILURE_EFFECT_MS)
+        {
+            const int failureStartSize = 170;
+            const int failureEndSize = 330;
+            const int failureRange = failureEndSize - failureStartSize;
+            const int failureSize = failureStartSize + (int)(resultEffectElapsed * failureRange / FAILURE_EFFECT_MS);
+            const int failureTransparency = 235 - (int)(resultEffectElapsed * 235 / FAILURE_EFFECT_MS);
+            const int failureX = centerX - failureSize / 2;
+            const int failureY = centerY - failureSize / 2;
+            m_sprFailureImpact->DrawImageScaled(failureX, failureY, failureSize, failureSize, failureTransparency);
         }
     }
 
@@ -166,6 +204,16 @@ void QTE_Module::Finalize()
         delete m_sprSuccessSparkles;
         m_sprSuccessSparkles = nullptr;
     }
+    if (m_sprNormalWave != nullptr)
+    {
+        delete m_sprNormalWave;
+        m_sprNormalWave = nullptr;
+    }
+    if (m_sprFailureImpact != nullptr)
+    {
+        delete m_sprFailureImpact;
+        m_sprFailureImpact = nullptr;
+    }
 }
 
 void NS_QTE_Module::QTE_Module::SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight)
@@ -190,6 +238,12 @@ void NS_QTE_Module::QTE_Module::SetSuccessEffectSprites(ISprite* burst, ISprite*
     m_sprSuccessSparkles = sparkles;
 }
 
+void NS_QTE_Module::QTE_Module::SetResultEffectSprites(ISprite* normalWave, ISprite* failureImpact)
+{
+    m_sprNormalWave = normalWave;
+    m_sprFailureImpact = failureImpact;
+}
+
 void NS_QTE_Module::QTE_Module::StartBarAnimation()
 {
     StartCircleAnimation();
@@ -202,7 +256,7 @@ void NS_QTE_Module::QTE_Module::StartCircleAnimation()
     m_circleAnimSize = START_CIRCLE_SIZE;
     m_circleResult = BarResult::None;
     m_circleStopWaitStart = 0;
-    m_successEffectStartTime = 0;
+    m_resultEffectStartTime = 0;
 }
 
 void NS_QTE_Module::QTE_Module::StopBarAnimation()
@@ -217,7 +271,8 @@ void NS_QTE_Module::QTE_Module::StopCircleAnimation()
         return;
     }
 
-    unsigned long long elapsed = GetTickCount64() - m_circleAnimStartTime;
+    const unsigned long long currentTime = GetTickCount64();
+    unsigned long long elapsed = currentTime - m_circleAnimStartTime;
 
     long long diff = (long long)elapsed - CIRCLE_MATCH_MS;
     if (diff < 0)
@@ -228,7 +283,6 @@ void NS_QTE_Module::QTE_Module::StopCircleAnimation()
     if (diff <= SUCCESS_WINDOW_MS)
     {
         m_circleResult = BarResult::Success;
-        m_successEffectStartTime = GetTickCount64();
     }
     else if (diff <= NORMAL_WINDOW_MS)
     {
@@ -240,7 +294,8 @@ void NS_QTE_Module::QTE_Module::StopCircleAnimation()
     }
 
     m_circleAnimActive = false;
-    m_circleStopWaitStart = GetTickCount64();
+    m_resultEffectStartTime = currentTime;
+    m_circleStopWaitStart = currentTime;
 }
 
 QTE_Module::BarResult NS_QTE_Module::QTE_Module::GetBarResult() const

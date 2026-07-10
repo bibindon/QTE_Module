@@ -29,6 +29,7 @@ public:
     void SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight);
     void SetCircleSprites(ISprite* growingCircle, ISprite* targetCircle, ISprite* button, int screenWidth, int screenHeight);
     void SetSuccessEffectSprites(ISprite* burst, ISprite* wave, ISprite* sparkles);
+    void SetResultEffectSprites(ISprite* normalWave, ISprite* failureImpact);
     void StartBarAnimation();
     void StartCircleAnimation();
     void StopBarAnimation();
@@ -43,6 +44,8 @@ private:
     ISprite* m_sprSuccessBurst = nullptr;
     ISprite* m_sprSuccessWave = nullptr;
     ISprite* m_sprSuccessSparkles = nullptr;
+    ISprite* m_sprNormalWave = nullptr;
+    ISprite* m_sprFailureImpact = nullptr;
     int m_screenWidth = 0;
     int m_screenHeight = 0;
 
@@ -51,7 +54,7 @@ private:
     int m_circleAnimSize = 0;
     BarResult m_circleResult = BarResult::None;
     unsigned long long m_circleStopWaitStart = 0;
-    unsigned long long m_successEffectStartTime = 0;
+    unsigned long long m_resultEffectStartTime = 0;
 
     static const int TARGET_CIRCLE_SIZE = 176;
     static const int START_CIRCLE_SIZE = 48;
@@ -66,6 +69,8 @@ private:
     static const int SUCCESS_SPARKLES_DELAY_MS = 80;
     static const int SUCCESS_SPARKLES_MS = 570;
     static const int SUCCESS_BUTTON_PULSE_MS = 260;
+    static const int NORMAL_EFFECT_MS = 360;
+    static const int FAILURE_EFFECT_MS = 430;
     static const int FRAME_MS = 17;
     static const int SUCCESS_WINDOW_MS = 2 * FRAME_MS;
     static const int NORMAL_WINDOW_MS = 10 * FRAME_MS;

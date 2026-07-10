@@ -294,6 +294,12 @@ void InitStory()
     Sprite* sprSuccessSparkles = new Sprite(g_pd3dDevice);
     sprSuccessSparkles->Load(_T("qte_best_sparkles.png"));
     story->SetSuccessEffectSprites(sprSuccessBurst, sprSuccessWave, sprSuccessSparkles);
+
+    Sprite* sprNormalWave = new Sprite(g_pd3dDevice);
+    sprNormalWave->Load(_T("qte_normal_wave.png"));
+    Sprite* sprFailureImpact = new Sprite(g_pd3dDevice);
+    sprFailureImpact->Load(_T("qte_failure_impact.png"));
+    story->SetResultEffectSprites(sprNormalWave, sprFailureImpact);
 }
 
 VOID Cleanup()
