@@ -286,6 +286,14 @@ void InitStory()
     Sprite* sprButton = new Sprite(g_pd3dDevice);
     sprButton->Load(_T("qte_button.png"));
     story->SetCircleSprites(sprGrowingCircle, sprTargetCircle, sprButton, 1600, 900);
+
+    Sprite* sprSuccessBurst = new Sprite(g_pd3dDevice);
+    sprSuccessBurst->Load(_T("qte_best_burst.png"));
+    Sprite* sprSuccessWave = new Sprite(g_pd3dDevice);
+    sprSuccessWave->Load(_T("qte_best_wave.png"));
+    Sprite* sprSuccessSparkles = new Sprite(g_pd3dDevice);
+    sprSuccessSparkles->Load(_T("qte_best_sparkles.png"));
+    story->SetSuccessEffectSprites(sprSuccessBurst, sprSuccessWave, sprSuccessSparkles);
 }
 
 VOID Cleanup()

@@ -254,7 +254,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QTE_Module\QTE_Module.vcxproj">
-      <Project>{d8a93a58-4392-4fc4-a4f7-634d4dac81b4}</Project>
+      <Project>{9bfe08ce-51ba-4014-9d4d-746762f66b7f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

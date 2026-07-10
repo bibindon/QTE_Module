@@ -19,6 +19,7 @@ void QTE_Module::Render()
 {
     const int centerX = m_screenWidth / 2;
     const int centerY = m_screenHeight / 2;
+    const unsigned long long currentTime = GetTickCount64();
 
     if (m_sprTargetCircle != nullptr)
     {
@@ -29,7 +30,7 @@ void QTE_Module::Render()
 
     if (m_circleAnimActive)
     {
-        unsigned long long elapsed = GetTickCount64() - m_circleAnimStartTime;
+        unsigned long long elapsed = currentTime - m_circleAnimStartTime;
         const int totalAnimMs = CIRCLE_MATCH_MS + CIRCLE_OVERSHOOT_MS;
 
         if (elapsed < (unsigned long long)totalAnimMs)
@@ -45,7 +46,7 @@ void QTE_Module::Render()
             {
                 m_circleResult = BarResult::Failure;
             }
-            m_circleStopWaitStart = GetTickCount64();
+            m_circleStopWaitStart = currentTime;
         }
     }
 
@@ -56,11 +57,80 @@ void QTE_Module::Render()
         m_sprGrowingCircle->DrawImageScaled(circleX, circleY, m_circleAnimSize, m_circleAnimSize, 210);
     }
 
+    unsigned long long successElapsed = 0;
+    bool successEffectActive = false;
+    if (m_circleResult == BarResult::Success && m_successEffectStartTime > 0)
+    {
+        successElapsed = currentTime - m_successEffectStartTime;
+        successEffectActive = true;
+    }
+
+    if (successEffectActive && successElapsed < SUCCESS_BURST_MS && m_sprSuccessBurst != nullptr)
+    {
+        const int burstStartSize = 140;
+        const int burstEndSize = 360;
+        const int burstRange = burstEndSize - burstStartSize;
+        const int burstSize = burstStartSize + (int)(successElapsed * burstRange / SUCCESS_BURST_MS);
+        const int burstTransparency = 255 - (int)(successElapsed * 255 / SUCCESS_BURST_MS);
+        const int burstX = centerX - burstSize / 2;
+        const int burstY = centerY - burstSize / 2;
+        m_sprSuccessBurst->DrawImageScaled(burstX, burstY, burstSize, burstSize, burstTransparency);
+    }
+
+    if (successEffectActive && successElapsed >= SUCCESS_WAVE_DELAY_MS && m_sprSuccessWave != nullptr)
+    {
+        const unsigned long long waveElapsed = successElapsed - SUCCESS_WAVE_DELAY_MS;
+        if (waveElapsed < SUCCESS_WAVE_MS)
+        {
+            const int waveStartSize = 170;
+            const int waveEndSize = 430;
+            const int waveRange = waveEndSize - waveStartSize;
+            const int waveSize = waveStartSize + (int)(waveElapsed * waveRange / SUCCESS_WAVE_MS);
+            const int waveTransparency = 230 - (int)(waveElapsed * 230 / SUCCESS_WAVE_MS);
+            const int waveX = centerX - waveSize / 2;
+            const int waveY = centerY - waveSize / 2;
+            m_sprSuccessWave->DrawImageScaled(waveX, waveY, waveSize, waveSize, waveTransparency);
+        }
+    }
+
+    int buttonSize = BUTTON_SIZE;
+    if (successEffectActive && successElapsed < SUCCESS_BUTTON_PULSE_MS)
+    {
+        const int pulsePeakMs = 110;
+        const int pulseSize = 14;
+        if (successElapsed < (unsigned long long)pulsePeakMs)
+        {
+            buttonSize += (int)(successElapsed * pulseSize / pulsePeakMs);
+        }
+        else
+        {
+            const unsigned long long pulseReturnElapsed = successElapsed - pulsePeakMs;
+            const int pulseReturnMs = SUCCESS_BUTTON_PULSE_MS - pulsePeakMs;
+            buttonSize += pulseSize - (int)(pulseReturnElapsed * pulseSize / pulseReturnMs);
+        }
+    }
+
     if (m_sprButton != nullptr)
     {
-        const int buttonX = centerX - BUTTON_SIZE / 2;
-        const int buttonY = centerY - BUTTON_SIZE / 2;
-        m_sprButton->DrawImageScaled(buttonX, buttonY, BUTTON_SIZE, BUTTON_SIZE);
+        const int buttonX = centerX - buttonSize / 2;
+        const int buttonY = centerY - buttonSize / 2;
+        m_sprButton->DrawImageScaled(buttonX, buttonY, buttonSize, buttonSize);
+    }
+
+    if (successEffectActive && successElapsed >= SUCCESS_SPARKLES_DELAY_MS && m_sprSuccessSparkles != nullptr)
+    {
+        const unsigned long long sparklesElapsed = successElapsed - SUCCESS_SPARKLES_DELAY_MS;
+        if (sparklesElapsed < SUCCESS_SPARKLES_MS)
+        {
+            const int sparklesStartSize = 190;
+            const int sparklesEndSize = 400;
+            const int sparklesRange = sparklesEndSize - sparklesStartSize;
+            const int sparklesSize = sparklesStartSize + (int)(sparklesElapsed * sparklesRange / SUCCESS_SPARKLES_MS);
+            const int sparklesTransparency = 255 - (int)(sparklesElapsed * 255 / SUCCESS_SPARKLES_MS);
+            const int sparklesX = centerX - sparklesSize / 2;
+            const int sparklesY = centerY - sparklesSize / 2;
+            m_sprSuccessSparkles->DrawImageScaled(sparklesX, sparklesY, sparklesSize, sparklesSize, sparklesTransparency);
+        }
     }
 }
 
@@ -81,6 +151,21 @@ void QTE_Module::Finalize()
         delete m_sprButton;
         m_sprButton = nullptr;
     }
+    if (m_sprSuccessBurst != nullptr)
+    {
+        delete m_sprSuccessBurst;
+        m_sprSuccessBurst = nullptr;
+    }
+    if (m_sprSuccessWave != nullptr)
+    {
+        delete m_sprSuccessWave;
+        m_sprSuccessWave = nullptr;
+    }
+    if (m_sprSuccessSparkles != nullptr)
+    {
+        delete m_sprSuccessSparkles;
+        m_sprSuccessSparkles = nullptr;
+    }
 }
 
 void NS_QTE_Module::QTE_Module::SetBars(ISprite* whiteBar, ISprite* blackBar, int screenWidth, int screenHeight)
@@ -98,6 +183,13 @@ void NS_QTE_Module::QTE_Module::SetCircleSprites(ISprite* growingCircle, ISprite
     StartCircleAnimation();
 }
 
+void NS_QTE_Module::QTE_Module::SetSuccessEffectSprites(ISprite* burst, ISprite* wave, ISprite* sparkles)
+{
+    m_sprSuccessBurst = burst;
+    m_sprSuccessWave = wave;
+    m_sprSuccessSparkles = sparkles;
+}
+
 void NS_QTE_Module::QTE_Module::StartBarAnimation()
 {
     StartCircleAnimation();
@@ -110,6 +202,7 @@ void NS_QTE_Module::QTE_Module::StartCircleAnimation()
     m_circleAnimSize = START_CIRCLE_SIZE;
     m_circleResult = BarResult::None;
     m_circleStopWaitStart = 0;
+    m_successEffectStartTime = 0;
 }
 
 void NS_QTE_Module::QTE_Module::StopBarAnimation()
@@ -135,6 +228,7 @@ void NS_QTE_Module::QTE_Module::StopCircleAnimation()
     if (diff <= SUCCESS_WINDOW_MS)
     {
         m_circleResult = BarResult::Success;
+        m_successEffectStartTime = GetTickCount64();
     }
     else if (diff <= NORMAL_WINDOW_MS)
     {
