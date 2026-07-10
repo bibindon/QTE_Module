@@ -257,6 +257,7 @@ void NS_QTE_Module::QTE_Module::StartCircleAnimation()
     m_circleResult = BarResult::None;
     m_circleStopWaitStart = 0;
     m_resultEffectStartTime = 0;
+    m_circleStopCloseness = 0.0f;
 }
 
 void NS_QTE_Module::QTE_Module::StopBarAnimation()
@@ -293,6 +294,7 @@ void NS_QTE_Module::QTE_Module::StopCircleAnimation()
         m_circleResult = BarResult::Failure;
     }
 
+    m_circleStopCloseness = GetTimingCloseness();
     m_circleAnimActive = false;
     m_resultEffectStartTime = currentTime;
     m_circleStopWaitStart = currentTime;
@@ -301,4 +303,30 @@ void NS_QTE_Module::QTE_Module::StopCircleAnimation()
 QTE_Module::BarResult NS_QTE_Module::QTE_Module::GetBarResult() const
 {
     return m_circleResult;
+}
+
+float NS_QTE_Module::QTE_Module::GetTimingCloseness() const
+{
+    if (!m_circleAnimActive)
+    {
+        return m_circleStopCloseness;
+    }
+
+    const unsigned long long elapsed = GetTickCount64() - m_circleAnimStartTime;
+    long long diff = (long long)elapsed - CIRCLE_MATCH_MS;
+    if (diff < 0)
+    {
+        diff = -diff;
+    }
+
+    float closeness = 1.0f - (static_cast<float>(diff) / static_cast<float>(CIRCLE_MATCH_MS));
+    if (closeness < 0.0f)
+    {
+        closeness = 0.0f;
+    }
+    if (closeness > 1.0f)
+    {
+        closeness = 1.0f;
+    }
+    return closeness;
 }

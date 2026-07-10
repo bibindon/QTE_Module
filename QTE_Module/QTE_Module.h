@@ -35,6 +35,7 @@ public:
     void StopBarAnimation();
     void StopCircleAnimation();
     BarResult GetBarResult() const;
+    float GetTimingCloseness() const;
 
 private:
 
@@ -55,6 +56,7 @@ private:
     BarResult m_circleResult = BarResult::None;
     unsigned long long m_circleStopWaitStart = 0;
     unsigned long long m_resultEffectStartTime = 0;
+    float m_circleStopCloseness = 0.0f;
 
     static const int TARGET_CIRCLE_SIZE = 176;
     static const int START_CIRCLE_SIZE = 48;
@@ -62,7 +64,7 @@ private:
     static const int BUTTON_SIZE = 82;
     static const int CIRCLE_MATCH_MS = 2000;
     static const int CIRCLE_OVERSHOOT_MS = 2000;
-    static const int CIRCLE_STOP_WAIT_MS = 2000;
+    static const int CIRCLE_STOP_WAIT_MS = 650;
     static const int SUCCESS_BURST_MS = 220;
     static const int SUCCESS_WAVE_DELAY_MS = 40;
     static const int SUCCESS_WAVE_MS = 510;
